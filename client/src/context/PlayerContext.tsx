@@ -83,23 +83,26 @@ export function PlayerProvider({ children }: { children: ReactNode }) {
     let urlToPlay = track.previewUrl;
 
 
+    const BACKEND_URL = window.location.hostname === 'localhost' 
+      ? 'http://localhost:3001' 
+      : 'https://diploma-5h0l.onrender.com';
+
     if (track.deezerLink) {
       const match = track.deezerLink.match(/track\/(\d+)/);
       if (match) {
         try {
-          const res = await fetch(`/api/tracks/deezer/${match[1]}`);
+          const res = await fetch(`${BACKEND_URL}/api/tracks/deezer/${match[1]}`);
           const data = await res.json();
           if (data.preview) {
             urlToPlay = data.preview;
           }
         } catch (error) {
-          console.error('  previewUrl:', error);
+          console.error('Failed to get Deezer previewUrl:', error);
         }
       }
     }
     if (urlToPlay && urlToPlay.startsWith('/uploads')) {
-      const serverUrl = window.location.hostname === 'localhost' ? 'http://localhost:3001' : '';
-      urlToPlay = `${serverUrl}${urlToPlay}`;
+      urlToPlay = `${BACKEND_URL}${urlToPlay}`;
     }
 
     if (urlToPlay) {
