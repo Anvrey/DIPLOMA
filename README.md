@@ -37,3 +37,5 @@
 2. Виконайте команду:
 docker compose up --build
 3. Відкрийте браузер: http://localhost:3000
+
+Тест сайту: https://andrewsound.onrender.com/
