@@ -11,7 +11,7 @@ import type {
 
 const API_URL = window.location.hostname === 'localhost' 
   ? 'http://localhost:3001/api' 
-  : 'https://diploma-afbz.onrender.com/api';
+  : 'https://diploma-5h0l.onrender.com/api';
 
 
 async function apiFetch<T>(
