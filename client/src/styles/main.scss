@@ -1,0 +1,38 @@
+@use 'variables' as *;
+@use 'bulma/bulma';
+@use 'components';
+
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  font-family: $family-sans-serif;
+  background-color: $body-background-color;
+  color: #121212;
+  overflow-x: hidden;
+}
+
+::selection {
+  background: rgba(98, 0, 238, 0.2);
+}
+
+
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #D0D0D0;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #B0B0B0;
+}

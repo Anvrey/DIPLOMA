@@ -1,0 +1,16 @@
+[
+  {
+    "id": "c1eb97c4-4b57-4846-bf7e-f0ac7c3a3628",
+    "email": "www.vandrey@gmail.com",
+    "name": "Andrey",
+    "passwordHash": "$2a$10$xQBVXmAMvFz7uKCavn66He2UGPzm/V5In5XpMVkC7AK0V0.AU36YO",
+    "createdAt": "2026-04-30T16:34:27.426Z"
+  },
+  {
+    "id": "1f680f62-3c91-4d27-af83-e2ea3d0c5644",
+    "email": "testik@gmail.com",
+    "name": "Test",
+    "passwordHash": "$2a$10$WE4PX4iLhEx4FiySKJG32urJ4mLrPmoQjgYUm3kr5mvJinva09ETS",
+    "createdAt": "2026-05-01T14:05:08.083Z"
+  }
+]
