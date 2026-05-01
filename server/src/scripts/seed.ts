@@ -64,14 +64,42 @@ async function fetchDeezerTracks(query: string, limit: number): Promise<DeezerTr
   return data.data || [];
 }
 
+export async function indexTracks() {
+  if (!fs.existsSync(TRACKS_PATH)) {
+    console.log('AndrewSound: Файл tracks.json не знайдено. Нічого індексувати.');
+    return;
+  }
+
+  const allTracks: Track[] = JSON.parse(fs.readFileSync(TRACKS_PATH, 'utf-8'));
+  console.log(`AndrewSound: Індексація ${allTracks.length} наявних треків...`);
+
+  for (let i = 0; i < allTracks.length; i++) {
+    const track = allTracks[i];
+    try {
+      const embedding = await generateTrackEmbedding(track);
+      addVector(i, embedding);
+      console.log(`AndrewSound: Проіндексовано ${i + 1}/${allTracks.length}: ${track.title}`);
+      
+      if ((i + 1) % 50 === 0) saveIndex();
+      
+      await delay(1000); 
+    } catch (error: any) {
+      console.error(`AndrewSound: Помилка індексації треку "${track.title}":`, error.message);
+      if (error.message.includes('429')) await delay(30000);
+    }
+  }
+
+  saveIndex();
+}
+
 async function seed() {
-  console.log('Починаємо заповнення бази...\n');
+  console.log('AndrewSound: Початок повного процесу наповнення (Deezer + AI)...\n');
 
   if (!fs.existsSync(DATA_DIR)) {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
 
-  initIndex(500);
+  initIndex(2000);
 
   const allTracks: Track[] = [];
   let trackId = 1;
@@ -106,7 +134,7 @@ async function seed() {
         count++;
       }
 
-      console.log(`Додано ${count} треків для "${genre}"`);
+      console.log(`Додано ${count} треків для жанру "${genre}"`);
     } catch (error) {
       console.error(`Помилка для "${query}":`, error);
     }
@@ -115,41 +143,18 @@ async function seed() {
   }
 
   console.log(`\nВсього знайдено треків: ${allTracks.length}`);
-  console.log('Генеруємо вектори (AI-аналіз)...\n');
-
-  for (let i = 0; i < allTracks.length; i++) {
-    const track = allTracks[i];
-    try {
-      const embedding = await generateTrackEmbedding(track);
-
-      addVector(i, embedding);
-
-      track.id = i;
-
-      fs.writeFileSync(TRACKS_PATH, JSON.stringify(allTracks, null, 2), 'utf-8');
-      saveIndex();
-
-      console.log(`Оброблено ${i + 1}/${allTracks.length} треків...`);
-
-      await delay(1500);
-    } catch (error: unknown) {
-      const msg = error instanceof Error ? error.message : String(error);
-      console.error(`Помилка для "${track.artist} - ${track.title}":`, msg);
-
-      if (msg.includes('429')) {
-        console.log('Ліміт вичерпано. Чекаємо 60 сек...');
-        await delay(60000);
-      }
-    }
-  }
-
   fs.writeFileSync(TRACKS_PATH, JSON.stringify(allTracks, null, 2), 'utf-8');
-  saveIndex();
+  
+  console.log('Початок AI-індексації...\n');
+  await indexTracks();
 
   console.log('\nБазу AndrewSound успішно наповнено!');
 }
 
-seed().catch((error) => {
-  console.error(' Seed :', error);
-  process.exit(1);
-});
+// Only run if called directly
+if (process.argv[1] && (process.argv[1].endsWith('seed.ts') || process.argv[1].endsWith('seed.js'))) {
+  seed().catch((error) => {
+    console.error('Seed error:', error);
+    process.exit(1);
+  });
+}

@@ -40,17 +40,34 @@ app.get('/api/health', (_req, res) => {
 });
 
 
-async function start() {
-  console.log('AndrewSound  Starting server...');
+import { indexTracks } from './scripts/seed.js';
 
+async function start() {
+  console.log('AndrewSound: Запуск сервера...');
 
   loadTracks();
   loadUsers();
   loadPlaylists();
   loadFeedback();
 
+  initIndex(2000);
 
-  initIndex(500);
+  // Автоматична індексація, якщо база порожня
+  const { search } = await import('./services/vectorStore.js');
+  const tracks = (await import('./services/trackStore.js')).getAllTracks();
+  
+  const dummyVector = new Array(768).fill(0);
+  const results = search(dummyVector, 1);
+
+  if (results.length === 0 && tracks.length > 0) {
+    console.log('AndrewSound: Пошуковий індекс порожній. Починаємо автоматичну індексацію...');
+    // Запускаємо індексацію у фоні
+    indexTracks().then(() => {
+      console.log('AndrewSound: Автоматичну індексацію завершено успішно!');
+    }).catch(err => {
+      console.error('AndrewSound: Помилка автоматичної індексації:', err);
+    });
+  }
 
   app.listen(PORT, () => {
     console.log(`Server started at http://localhost:${PORT}`);
