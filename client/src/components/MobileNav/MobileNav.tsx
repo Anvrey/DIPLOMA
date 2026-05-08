@@ -1,3 +1,4 @@
+import { useAuth } from '../../context/AuthContext';
 import './MobileNav.scss';
 
 interface MobileNavProps {
@@ -6,15 +7,19 @@ interface MobileNavProps {
 }
 
 export default function MobileNav({ activeView, onViewChange }: MobileNavProps) {
+  const { user } = useAuth();
+
   return (
     <nav className="mobile-nav">
-      <button 
-        className={`mobile-nav-item ${activeView === 'home' ? 'is-active' : ''}`}
-        onClick={() => onViewChange('home')}
-      >
-        <i className="fas fa-home"></i>
-        <span>Home</span>
-      </button>
+      {user && (
+        <button 
+          className={`mobile-nav-item ${activeView === 'home' ? 'is-active' : ''}`}
+          onClick={() => onViewChange('home')}
+        >
+          <i className="fas fa-home"></i>
+          <span>Home</span>
+        </button>
+      )}
       
       <button 
         className={`mobile-nav-item ${activeView === 'browse' ? 'is-active' : ''}`}

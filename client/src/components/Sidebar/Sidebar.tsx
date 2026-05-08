@@ -1,3 +1,5 @@
+import { useAuth } from '../../context/AuthContext';
+
 interface SidebarProps {
   activeView: string;
   onViewChange: (view: string) => void;
@@ -6,15 +8,19 @@ interface SidebarProps {
 }
 
 export default function Sidebar({ activeView, onViewChange, onCreatePlaylist, onUpload }: SidebarProps) {
+  const { user } = useAuth();
+
   return (
     <aside className="app-sidebar">
       <p className="menu-label">Your Library</p>
       <ul className="menu-list">
-        <li>
-          <a className={activeView === 'home' ? 'is-active' : ''} onClick={() => onViewChange('home')}>
-            <i className="fas fa-home"></i> Home
-          </a>
-        </li>
+        {user && (
+          <li>
+            <a className={activeView === 'home' ? 'is-active' : ''} onClick={() => onViewChange('home')}>
+              <i className="fas fa-home"></i> Home
+            </a>
+          </li>
+        )}
         <li>
           <a className={activeView === 'search' ? 'is-active' : ''} onClick={() => onViewChange('search')}>
             <i className="fas fa-search"></i> Discover

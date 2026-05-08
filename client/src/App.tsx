@@ -1,4 +1,4 @@
-import { useState, useCallback, useEffect } from 'react';
+import { useState, useCallback, useEffect, useRef } from 'react';
 import Header from './components/Header/Header';
 import Sidebar from './components/Sidebar/Sidebar';
 import TrackList from './components/TrackList/TrackList';
@@ -17,7 +17,9 @@ import type { Track } from './types';
 
 export default function App() {
   const { user } = useAuth();
-  const [activeView, setActiveView] = useState('home');
+  const [activeView, setActiveView] = useState(() =>
+    localStorage.getItem('token') ? 'home' : 'search'
+  );
   const [tracks, setTracks] = useState<Track[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
@@ -28,9 +30,16 @@ export default function App() {
   const [likedTrackIds, setLikedTrackIds] = useState<Set<number>>(new Set());
   const [showUpload, setShowUpload] = useState(false);
 
+  const prevUserRef = useRef(user);
 
   useEffect(() => {
+    const prevUser = prevUserRef.current;
+    prevUserRef.current = user;
+
     if (user) {
+      if (!prevUser) {
+        setActiveView('home');
+      }
       getPlaylists().then(data => {
         const likedPlaylist = data.playlists.find(p => p.name === 'Liked Tracks' || p.name === ' ');
         if (likedPlaylist) {
@@ -38,6 +47,10 @@ export default function App() {
         }
       }).catch(console.error);
     } else {
+      // Switch view only on actual logout (was logged in, now null)
+      if (prevUser) {
+        setActiveView('search');
+      }
       Promise.resolve().then(() => {
         setLikedTrackIds(prev => prev.size === 0 ? prev : new Set());
       });
@@ -77,11 +90,11 @@ export default function App() {
   const handleViewChange = useCallback((view: string) => {
     setActiveView(view);
     setSearchQuery('');
-    
+
     if (view === 'browse') {
       handleBrowse();
     } else if (view === 'home') {
-      
+
       setTracks([]);
     } else {
       setTracks([]);
@@ -149,15 +162,15 @@ export default function App() {
       setShowAuth(true);
       return;
     }
-    
+
     try {
       const { playlists } = await getPlaylists();
       let likedPlaylist = playlists.find(p => p.name === 'Liked Tracks' || p.name === ' ');
-      
+
       if (isLiked) {
         setLikedTrackIds(prev => new Set([...prev, track.id]));
-        await sendFeedback(track.id, 'like').catch(() => {});
-        
+        await sendFeedback(track.id, 'like').catch(() => { });
+
         if (!likedPlaylist) {
           likedPlaylist = await apiCreatePlaylist('Liked Tracks');
         }
@@ -168,7 +181,7 @@ export default function App() {
           next.delete(track.id);
           return next;
         });
-        
+
         if (likedPlaylist) {
           await removeTrackFromPlaylist(likedPlaylist.id, track.id);
         }
@@ -196,7 +209,7 @@ export default function App() {
 
         <main className="app-main">
           {activeView === 'home' && (
-            <HomeView 
+            <HomeView
               likedTrackIds={likedTrackIds}
               onAddToPlaylist={handleAddToPlaylistClick}
               onLikeToggle={handleLikeToggle}
@@ -204,7 +217,7 @@ export default function App() {
           )}
 
           {activeView === 'search' && (
-            <DiscoverView 
+            <DiscoverView
               onSearch={handleSearch}
               tracks={tracks}
               isLoading={isLoading}
@@ -216,8 +229,8 @@ export default function App() {
           )}
 
           {activeView === 'playlists' && (
-            <PlaylistView 
-              refreshKey={playlistRefreshKey} 
+            <PlaylistView
+              refreshKey={playlistRefreshKey}
               likedTrackIds={likedTrackIds}
               onAddToPlaylist={handleAddToPlaylistClick}
               onLikeToggle={handleLikeToggle}
@@ -243,9 +256,9 @@ export default function App() {
       <Player />
       <MobileNav activeView={activeView} onViewChange={handleViewChange} />
       <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
-      <CreatePlaylistModal 
-        isOpen={showCreatePlaylist} 
-        onClose={() => setShowCreatePlaylist(false)} 
+      <CreatePlaylistModal
+        isOpen={showCreatePlaylist}
+        onClose={() => setShowCreatePlaylist(false)}
         onSubmit={handlePlaylistSubmit}
         onSuccess={() => {
           setPlaylistRefreshKey(Date.now());
@@ -254,15 +267,15 @@ export default function App() {
           }
         }}
       />
-      <AddToPlaylistModal 
+      <AddToPlaylistModal
         isOpen={!!trackToAdd}
         onClose={() => setTrackToAdd(null)}
         onSelect={handlePlaylistSelect}
         onCreateNew={() => setShowCreatePlaylist(true)}
       />
-      <UploadTrackModal 
-        isOpen={showUpload} 
-        onClose={() => setShowUpload(false)} 
+      <UploadTrackModal
+        isOpen={showUpload}
+        onClose={() => setShowUpload(false)}
         onSuccess={() => {
           if (activeView === 'browse') handleBrowse();
           alert('Track uploaded successfully!');
