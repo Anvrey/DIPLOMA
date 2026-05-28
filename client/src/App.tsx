@@ -58,12 +58,12 @@ export default function App() {
   }, [user]);
 
 
-  const handleSearch = useCallback(async (query: string) => {
+  const handleSearch = useCallback(async (query: string, diversity: number = 0) => {
     setIsLoading(true);
     setSearchQuery(query);
     setActiveView('search');
     try {
-      const result = await searchTracks(query);
+      const result = await searchTracks(query, 20, diversity);
       setTracks(result.tracks);
     } catch (error) {
       console.error('Search error:', error);
@@ -254,7 +254,7 @@ export default function App() {
       </div>
 
       <Player />
-      <MobileNav activeView={activeView} onViewChange={handleViewChange} />
+      <MobileNav activeView={activeView} onViewChange={handleViewChange} onUploadClick={handleUploadClick} />
       <AuthModal isOpen={showAuth} onClose={() => setShowAuth(false)} />
       <CreatePlaylistModal
         isOpen={showCreatePlaylist}

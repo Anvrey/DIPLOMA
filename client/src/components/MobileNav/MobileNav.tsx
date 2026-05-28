@@ -4,9 +4,10 @@ import './MobileNav.scss';
 interface MobileNavProps {
   activeView: string;
   onViewChange: (view: string) => void;
+  onUploadClick?: () => void;
 }
 
-export default function MobileNav({ activeView, onViewChange }: MobileNavProps) {
+export default function MobileNav({ activeView, onViewChange, onUploadClick }: MobileNavProps) {
   const { user } = useAuth();
 
   return (
@@ -36,6 +37,16 @@ export default function MobileNav({ activeView, onViewChange }: MobileNavProps) 
         <i className="fas fa-search"></i>
         <span>Search</span>
       </button>
+
+      {user && onUploadClick && (
+        <button 
+          className="mobile-nav-item"
+          onClick={onUploadClick}
+        >
+          <i className="fas fa-upload"></i>
+          <span>Upload</span>
+        </button>
+      )}
       
       <button 
         className={`mobile-nav-item ${activeView === 'playlists' ? 'is-active' : ''}`}

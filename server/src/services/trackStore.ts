@@ -76,8 +76,11 @@ export function getTracksPaginated(page: number = 1, limit: number = 20): { trac
   const start = (page - 1) * limit;
   const end = start + limit;
 
+  // Clone and reverse to show newest tracks first
+  const reversedTracks = [...tracks].reverse();
+
   return {
-    tracks: tracks.slice(start, end),
+    tracks: reversedTracks.slice(start, end),
     total,
     page,
     totalPages,

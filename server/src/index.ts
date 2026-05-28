@@ -9,6 +9,7 @@ import { loadUsers } from './services/userStore.js';
 import { loadPlaylists } from './services/playlistStore.js';
 import { loadFeedback } from './services/feedbackStore.js';
 import { initIndex } from './services/vectorStore.js';
+import { EMBEDDING_DIMENSIONS } from './services/embedding.js';
 
 import authRoutes from './routes/auth.js';
 import searchRoutes from './routes/search.js';
@@ -24,7 +25,7 @@ app.use(cors());
 app.use(express.json());
 
 import path from 'path';
-const UPLOADS_DIR = path.join(process.cwd(), 'data', 'uploads');
+const UPLOADS_DIR = path.join(import.meta.dirname, 'data', 'uploads');
 app.use('/uploads', express.static(UPLOADS_DIR));
 
 
@@ -56,7 +57,7 @@ async function start() {
   const { search } = await import('./services/vectorStore.js');
   const tracks = (await import('./services/trackStore.js')).getAllTracks();
   
-  const dummyVector = new Array(768).fill(0);
+  const dummyVector = new Array(EMBEDDING_DIMENSIONS).fill(0);
   const results = search(dummyVector, 1);
 
   if (results.length === 0 && tracks.length > 0) {

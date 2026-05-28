@@ -266,7 +266,7 @@
   display: flex;
   align-items: center;
   padding: 0 1.5rem;
-  z-index: 100;
+  z-index: 250;
   gap: 1rem;
 
   .player-track-info {
@@ -560,6 +560,12 @@
 
   .app-main {
     margin-left: 0;
+    overflow-x: hidden;
+    box-sizing: border-box;
+  }
+
+  .app-layout {
+    overflow-x: hidden;
   }
 
   .playlist-panel {

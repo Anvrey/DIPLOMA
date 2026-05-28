@@ -8,6 +8,7 @@ interface TrackListProps {
   onAddToPlaylist?: (trackId: number) => void;
   onLikeToggle?: (track: Track, isLiked: boolean) => void;
   onRemoveTrack?: (trackId: number) => void;
+  searchQuery?: string;
 }
 
 function SkeletonCard() {
@@ -26,7 +27,7 @@ function SkeletonCard() {
   );
 }
 
-export default function TrackList({ tracks, isLoading, likedTrackIds, onAddToPlaylist, onLikeToggle, onRemoveTrack }: TrackListProps) {
+export default function TrackList({ tracks, isLoading, likedTrackIds, onAddToPlaylist, onLikeToggle, onRemoveTrack, searchQuery }: TrackListProps) {
   if (isLoading) {
     return (
       <div className="columns is-multiline">
@@ -51,7 +52,7 @@ export default function TrackList({ tracks, isLoading, likedTrackIds, onAddToPla
   return (
     <div className="columns is-multiline">
       {tracks.map((track, index) => (
-        <div className="column is-3-desktop is-4-tablet is-12-mobile" key={track.id}>
+        <div className="column is-3-desktop is-4-tablet is-6-mobile" key={track.id}>
           <TrackCard 
             track={track} 
             queue={tracks} 
@@ -60,6 +61,7 @@ export default function TrackList({ tracks, isLoading, likedTrackIds, onAddToPla
             onAddToPlaylist={onAddToPlaylist} 
             onLikeToggle={onLikeToggle}
             onRemoveFromPlaylist={onRemoveTrack}
+            searchQuery={searchQuery}
           />
         </div>
       ))}

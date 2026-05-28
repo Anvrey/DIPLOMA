@@ -2,6 +2,7 @@
 import { Router } from 'express';
 import multer from 'multer';
 import path from 'path';
+import fs from 'fs';
 import { getAllTracks, getTrackById, getTracksPaginated, addTrack, getNextId, saveTracks } from '../services/trackStore.js';
 import { generateTrackEmbedding } from '../services/embedding.js';
 import { addVector, saveIndex } from '../services/vectorStore.js';
@@ -11,7 +12,11 @@ const router = Router();
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, path.join(process.cwd(), 'data', 'uploads'));
+    const uploadDir = path.join(import.meta.dirname, '..', 'data', 'uploads');
+    if (!fs.existsSync(uploadDir)) {
+      fs.mkdirSync(uploadDir, { recursive: true });
+    }
+    cb(null, uploadDir);
   },
   filename: (req, file, cb) => {
     const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);

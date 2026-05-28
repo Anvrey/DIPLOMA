@@ -36,7 +36,10 @@ async function apiFetch<T>(
 
   if (!response.ok) {
     const error = await response.json().catch(() => ({ error: 'Unknown error' }));
-    throw new Error(error.error || `HTTP ${response.status}`);
+    const errMsg = error.error || `HTTP ${response.status}`;
+    const err = new Error(errMsg);
+    (err as any).status = response.status;
+    throw err;
   }
 
   return response.json();
@@ -73,11 +76,44 @@ export async function getMe(): Promise<{ user: AuthResponse['user'] }> {
 
 export async function searchTracks(
   query: string,
-  topK: number = 20
+  topK: number = 20,
+  diversity: number = 0
 ): Promise<SearchResponse> {
   return apiFetch<SearchResponse>('/search', {
     method: 'POST',
-    body: JSON.stringify({ query, topK }),
+    body: JSON.stringify({ query, topK, diversity }),
+  });
+}
+
+export async function getSearchVibe(
+  query: string
+): Promise<{ vibe: { mood: string; emoji: string; gradientFrom: string; gradientTo: string; accent: string } }> {
+  return apiFetch('/search/vibe', {
+    method: 'POST',
+    body: JSON.stringify({ query }),
+  });
+}
+
+export async function explainTrackMatch(
+  query: string,
+  track: { id: number; title: string; artist: string; genre?: string | null; mood?: string | null }
+): Promise<{ explanation: string }> {
+  return apiFetch('/search/explain', {
+    method: 'POST',
+    body: JSON.stringify({ query, track }),
+  });
+}
+
+export async function curatePlaylist(
+  scenario: string
+): Promise<{
+  plan: { name: string; description: string };
+  segments: { label: string; tracks: import('./types').Track[] }[];
+  playlist: import('./types').Playlist | null;
+}> {
+  return apiFetch('/playlists/curate', {
+    method: 'POST',
+    body: JSON.stringify({ scenario }),
   });
 }
 

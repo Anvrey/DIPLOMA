@@ -21,3 +21,7 @@ build/
 
 # AI Data
 server/src/data/vectors.hnsw
+
+# Документація
+диплом/
+звіт/
