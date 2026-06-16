@@ -108,8 +108,8 @@ export async function curatePlaylist(
   scenario: string
 ): Promise<{
   plan: { name: string; description: string };
-  segments: { label: string; tracks: import('./types').Track[] }[];
-  playlist: import('./types').Playlist | null;
+  segments: { label: string; tracks: import('../types').Track[] }[];
+  playlist: import('../types').Playlist | null;
 }> {
   return apiFetch('/playlists/curate', {
     method: 'POST',
